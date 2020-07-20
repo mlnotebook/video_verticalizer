@@ -47,6 +47,19 @@ def check_input_files(config, video_root):
 
 def main(config):
     """Video verticalizer main script."""
+    # SET CONFIG VARIABLES
+    canvas_shape = [int(config['CONFIG']['canvas_height']), int(config['CONFIG']['canvas_width']), 3]
+    crop_ratio = float(config['CONFIG']['crop_ratio'])
+    video_root = str(config['CONFIG']['video_root'])
+    final_width = int(config['CONFIG']['final_width'])
+    final_height = int(config['CONFIG']['final_height'])
+    output_root = str(config['CONFIG']['output_root'])
+    output_format = str(config['CONFIG']['output_format'])
+    show_progress = True if config['CONFIG']['show_progress'] in ['True', 1] else False
+
+    H_CROP_SIZE = int(canvas_shape[0] * crop_ratio) // 2
+    W_CROP_SIZE = int(canvas_shape[1] * crop_ratio) // 2
+
     movie_dict = config.sections()[1:]  # Removes the 'CONFIG' section.
     try:
         for movie in movie_dict:
@@ -54,6 +67,8 @@ def main(config):
             start_time = float(config[movie]['start_time'])
             end_time = float(config[movie]['end_time'])
             video_file = os.path.join(video_root, movie_filename)
+
+            assert os.path.exists(video_file), f"Video does not exist at {video_file}"
 
             output_dir = output_root + f'_{crop_ratio}'
             os.makedirs(output_dir, exist_ok=True)
@@ -138,19 +153,6 @@ if __name__ == "__main__":
     # READ THE CONFIG FILE
     config = configparser.ConfigParser()
     config.read('./config.cfg')
-
-    # SET CONFIG VARIABLES
-    canvas_shape = [int(config['CONFIG']['canvas_height']), int(config['CONFIG']['canvas_width']), 3]
-    crop_ratio = float(config['CONFIG']['crop_ratio'])
-    video_root = str(config['CONFIG']['video_root'])
-    final_width = int(config['CONFIG']['final_width'])
-    final_height = int(config['CONFIG']['final_height'])
-    output_root = str(config['CONFIG']['output_root'])
-    output_format = str(config['CONFIG']['output_format'])
-    show_progress = bool(config['CONFIG']['show_progress'])
-
-    H_CROP_SIZE = int(canvas_shape[0] * crop_ratio) // 2
-    W_CROP_SIZE = int(canvas_shape[1] * crop_ratio) // 2
 
     # RUN  SCRIPT
     main(config)
